@@ -11,3 +11,4 @@ data/
 
 # Site build output
 site/dist/
+__pycache__/
