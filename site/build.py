@@ -63,6 +63,12 @@ class Item:
     image: str | None = None
 
     @property
+    def short(self) -> str:
+        """Artist / author / title only: text before the first dash, no trailing parenthetical."""
+        t = re.split(r"\s[—–]\s|\s\(|,\s+by\s", self.title_text, maxsplit=1)[0]
+        return t.strip(" :,")
+
+    @property
     def image_source(self) -> str | None:
         if self.listen and "open.spotify.com/" in self.listen[1]:
             return self.listen[1]
@@ -266,7 +272,7 @@ def page(title: str, body: str, depth: int, body_class: str = "") -> str:
 <title>{html.escape(title)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{base}style.css">
 </head>
 <body class="{body_class}">
@@ -339,7 +345,7 @@ def picks_block(e: Edition, cls: str) -> str:
             continue
         groups.append(
             f'<p class="{cls}-group" data-section="{sec.slug}"><span class="dot"></span>'
-            + html.escape("; ".join(sec.titles))
+            + html.escape(" / ".join(i.short for i in sec.items))
             + "</p>"
         )
     return f'<div class="{cls}">{"".join(groups)}</div>'
