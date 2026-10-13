@@ -34,6 +34,7 @@ Culture Digest (this vault)
 4. **Version** — it saves the rendered email to `emails/YYYY-MM-DD-culture-vulture.md` - version existing files with v1, v2, v3 etc if they are discovered when writing to this location.
 5. **Log** — it appends a row to `logs/run-log.md`.
 6. **Send** — it emails the digest via the connected Gmail tool.
+7. **Publish** — it commits the vault and pushes to GitHub, which rebuilds the website.
 
 ## To change how it behaves
 
@@ -48,7 +49,7 @@ The next 4am run picks up your changes automatically.
 
 ## The website
 
-Every push to `main` on GitHub builds the site from `emails/` and deploys it to GitHub Pages. Nothing in the weekly flow changes: the task writes markdown, the site renders it.
+Live at https://cbeau79.github.io/culture-vulture/. Every push to `main` on GitHub builds the site from `emails/` and deploys it to GitHub Pages. Nothing in the weekly flow changes: the task writes markdown, the site renders it.
 
 - Preview locally: `pip install markdown pyyaml` then `python3 site/build.py --serve` and open http://localhost:8000
 - Change the look: edit `site/style.css`
