@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+
+# Obsidian: keep settings, ignore per-device state
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+
+# Personal exports (Goodreads, Spotify)
+data/
