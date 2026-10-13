@@ -277,8 +277,10 @@ def page(title: str, body: str, depth: int, body_class: str = "") -> str:
 </head>
 <body class="{body_class}">
 <header class="masthead">
-  <a class="masthead-title" href="{base}">{SITE_TITLE}</a>
-  <p class="masthead-sub">{SITE_SUB}</p>
+  <div class="masthead-inner">
+    <a class="masthead-title" href="{base}">{SITE_TITLE}</a>
+    <p class="masthead-sub">{SITE_SUB}</p>
+  </div>
 </header>
 <main>
 {body}
@@ -333,7 +335,7 @@ def section_strip(e: Edition, link_prefix: str = "") -> str:
     for s in e.sections:
         parts.append(
             f'<a class="strip-item" data-section="{s.slug}" href="{link_prefix}#{s.slug}">'
-            f'<span class="dot"></span>{html.escape(s.label)}<span class="n">{s.count}</span></a>'
+            f'{html.escape(s.label)}<span class="n">{s.count}</span></a>'
         )
     return f'<nav class="strip" aria-label="Sections">{"".join(parts)}</nav>'
 
@@ -344,7 +346,7 @@ def picks_block(e: Edition, cls: str) -> str:
         if not sec.titles:
             continue
         groups.append(
-            f'<p class="{cls}-group" data-section="{sec.slug}"><span class="dot"></span>'
+            f'<p class="{cls}-group" data-section="{sec.slug}"><span class="tag">{html.escape(sec.label)}</span>'
             + html.escape(" / ".join(i.short for i in sec.items))
             + "</p>"
         )

@@ -9,6 +9,8 @@
   --art: #e45742;
   --books: #eb7f31;
   --film: #fcad38;
+  --paper-light: #faf6ef;
+  --ink-dark: #2b1a14;
   --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
   --sans: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
   --gutter: 1.25rem;
@@ -45,10 +47,10 @@ body {
 a { color: inherit; }
 a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
-[data-section="music"] { --sec: var(--music); }
-[data-section="art"]   { --sec: var(--art); }
-[data-section="books"] { --sec: var(--books); }
-[data-section="film"]  { --sec: var(--film); }
+[data-section="music"] { --sec: var(--music); --sec-fg: var(--paper-light); --sec-link: #fcad38; }
+[data-section="art"]   { --sec: var(--art);   --sec-fg: var(--paper-light); --sec-link: #ffe7b0; }
+[data-section="books"] { --sec: var(--books); --sec-fg: var(--ink-dark); --sec-link: #972828; }
+[data-section="film"]  { --sec: var(--film);  --sec-fg: var(--ink-dark); --sec-link: #972828; }
 
 .dot {
   display: inline-block;
@@ -63,14 +65,17 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 /* Masthead ---------------------------------------------------------- */
 
 .masthead {
+  background: var(--music);
+  color: var(--paper-light);
+}
+.masthead-inner {
   max-width: var(--max);
   margin: 0 auto;
-  padding: 1.5rem var(--gutter) 0;
+  padding: 1.5rem var(--gutter) 1.1rem;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
-  border-bottom: 3px solid var(--accent);
 }
 
 .masthead-title {
@@ -80,13 +85,13 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   line-height: 0.95;
   letter-spacing: -0.02em;
   text-decoration: none;
-  padding-bottom: 0.4rem;
+  color: var(--paper-light);
 }
+.masthead-title:hover { color: var(--film); }
 
 .masthead-sub {
   margin: 0;
-  padding-bottom: 0.75rem;
-  color: var(--ink-2);
+  color: var(--film);
   font-size: 0.9375rem;
   text-align: right;
 }
@@ -108,14 +113,30 @@ main {
 
 .strip-item {
   text-decoration: none;
-  color: var(--ink);
+  background: var(--sec);
+  color: var(--sec-fg);
+  padding: 0.3rem 0.7rem;
+  font-weight: 500;
   white-space: nowrap;
 }
-.strip-item:hover { color: var(--sec); }
+.strip-item:hover { filter: brightness(1.08); }
 .strip-item .n {
-  color: var(--ink-3);
-  margin-left: 0.35em;
+  opacity: 0.75;
+  margin-left: 0.45em;
   font-variant-numeric: tabular-nums;
+}
+.strip { gap: 0.4rem; }
+
+.tag {
+  display: inline-block;
+  background: var(--sec);
+  color: var(--sec-fg);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0.28rem 0.45rem;
+  margin-right: 0.5rem;
+  vertical-align: 0.1em;
 }
 
 /* Home: lead -------------------------------------------------------- */
@@ -142,7 +163,7 @@ main {
   color: var(--ink-2);
   font-size: 0.9375rem;
 }
-.lead-date a { text-decoration: none; }
+.lead-date a { text-decoration: none; color: var(--accent); font-weight: 600; }
 .lead-date a:hover { color: var(--accent); }
 
 .lead-standfirst {
@@ -212,8 +233,9 @@ main {
 }
 
 .row-when {
-  font-size: 0.9375rem;
-  color: var(--ink-2);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent);
   font-variant-numeric: tabular-nums;
 }
 .row-when a { text-decoration: none; }
@@ -239,9 +261,8 @@ main {
   max-width: 60ch;
 }
 .picks-group {
-  margin: 0 0 0.4rem;
-  padding-left: 1.05em;
-  text-indent: -1.05em;
+  margin: 0 0 0.5rem;
+  color: var(--ink);
 }
 
 /* Edition page ------------------------------------------------------ */
@@ -294,15 +315,16 @@ main {
 .standfirst em { font-style: italic; }
 
 .sec {
-  padding: 1.25rem 0 0.5rem;
-  margin-bottom: 1.5rem;
-  border-top: 3px solid var(--sec, var(--ink));
+  background: var(--sec);
+  color: var(--sec-fg);
+  padding: 1.5rem 1.5rem 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .sec-heading {
   font-family: var(--serif);
   font-weight: 600;
-  font-size: 1.625rem;
+  font-size: 1.75rem;
   line-height: 1;
   letter-spacing: -0.01em;
   margin: 0 0 1.5rem;
@@ -327,7 +349,7 @@ main {
   display: block;
   width: 5rem;
   height: 5rem;
-  background: var(--sec, var(--rule));
+  background: rgba(0,0,0,0.18);
   overflow: hidden;
 }
 .thumb img {
@@ -336,7 +358,7 @@ main {
   height: 100%;
   object-fit: cover;
 }
-.thumb-empty { background: var(--rule); }
+.thumb-empty { background: rgba(0,0,0,0.18); }
 .thumb-empty img { display: none; }
 
 .item-title {
@@ -354,28 +376,29 @@ main {
 .item-links { margin: 0; }
 .item-links a {
   display: block;
-  color: var(--accent);
-  text-decoration: none;
+  color: var(--sec-link, var(--accent));
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
   overflow-wrap: anywhere;
 }
-.item-links a:hover { text-decoration: underline; }
+.item-links a:hover { text-decoration-thickness: 2px; }
 
 .k {
   display: inline-block;
   min-width: 3.4em;
   margin-right: 0.25em;
-  color: var(--ink-3);
+  opacity: 0.7;
   font-size: 0.875rem;
 }
 
 /* The in-section playlist line the digest writes */
 .sec-notes p {
-  color: var(--ink-2);
+  opacity: 0.85;
   font-size: 0.9375rem;
   margin: 0 0 1rem;
 }
-.sec-notes a { color: var(--accent); text-decoration: none; }
-.sec-notes a:hover { text-decoration: underline; }
+.sec-notes a { color: var(--sec-link, var(--accent)); }
 
 .edition-nav {
   display: flex;
@@ -389,7 +412,7 @@ main {
 .edition-nav a { text-decoration: none; }
 .edition-nav a:hover { color: var(--accent); }
 .edition-nav a:only-child { margin-left: auto; }
-.edition-nav .k { min-width: 0; margin-right: 0.5em; }
+.edition-nav .k { min-width: 0; margin-right: 0.5em; opacity: 1; color: var(--ink-3); }
 
 /* Colophon ---------------------------------------------------------- */
 
@@ -428,6 +451,7 @@ main {
   }
   .rail .strip-item { display: flex; }
   .rail .strip-item .n { margin-left: auto; padding-left: 1rem; }
+  .rail .strip { gap: 0.25rem; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -437,6 +461,7 @@ main {
 @media (max-width: 40rem) {
   .item { grid-template-columns: 4rem 1fr; gap: 0 0.85rem; }
   .thumb { width: 4rem; height: 4rem; }
+  .sec { padding: 1.25rem 1rem 0.25rem; margin-inline: calc(-1 * var(--gutter)); }
   .masthead-sub { display: none; }
   .masthead-title { padding-bottom: 0.5rem; }
 }
