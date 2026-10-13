@@ -1,0 +1,228 @@
+:root {
+  --paper: #f5f6f2;
+  --ink: #1d211f;
+  --ink-soft: #5a615d;
+  --rule: #d6d9d2;
+  --link: #1f5f6b;
+  --link-hover: #0f3f48;
+  --spotify: #8a6a14;
+  --measure: 42rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #171a18;
+    --ink: #e8e9e3;
+    --ink-soft: #a0a69f;
+    --rule: #2f3431;
+    --link: #7fc3cf;
+    --link-hover: #b3e0e8;
+    --spotify: #d8b45a;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { font-size: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Literata", Georgia, "Times New Roman", serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+a:hover { color: var(--link-hover); }
+a:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Masthead */
+
+.masthead {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 2rem 1rem 1.25rem;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+}
+
+.masthead-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+.masthead-title:hover { color: var(--link); }
+
+.masthead-sub {
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+main {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+/* Index */
+
+.index-heading {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  margin: 0 0 2rem;
+}
+
+.month {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 2.5rem 0 0.75rem;
+  letter-spacing: -0.01em;
+}
+.month:first-of-type { margin-top: 0; }
+
+.editions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.edition {
+  padding: 1rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.edition-link {
+  text-decoration: none;
+  color: var(--ink);
+  display: block;
+}
+.edition-link:hover .edition-standfirst { color: var(--link-hover); }
+
+.edition-date {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  margin-bottom: 0.2rem;
+}
+
+.edition-standfirst {
+  display: block;
+  font-size: 1.1875rem;
+  line-height: 1.45;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.edition-meta {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+  margin-top: 0.35rem;
+}
+
+/* Edition page */
+
+.digest-date {
+  margin: 0 0 0.75rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.standfirst {
+  font-size: clamp(1.5rem, 3.4vw, 2rem);
+  line-height: 1.25;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  margin: 0 0 1.25rem;
+}
+
+.playlist {
+  margin: 0 0 2.5rem;
+  font-size: 1rem;
+}
+.playlist a { color: var(--spotify); }
+.playlist a:hover { color: var(--ink); }
+
+.digest-body h2 {
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 2.75rem 0 1rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+}
+.digest-body h2:first-child { margin-top: 0; }
+
+.digest-body ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.digest-body li {
+  margin: 0 0 1.5rem;
+}
+
+.digest-body li > strong:first-child {
+  display: block;
+  font-size: 1.125rem;
+  line-height: 1.35;
+  margin-bottom: 0.2rem;
+}
+
+.digest-body li a {
+  overflow-wrap: anywhere;
+}
+
+/* The playlist line the digest writes inside the Music section */
+.digest-body > p {
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  margin: 0 0 1rem;
+}
+
+.edition-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.95rem;
+}
+.edition-nav a:only-child { margin-left: auto; }
+
+/* Colophon */
+
+.colophon {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+  border-top: 1px solid var(--rule);
+  color: var(--ink-soft);
+  font-size: 0.875rem;
+}
+.colophon p { margin: 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  a { transition: color 120ms ease; }
+}

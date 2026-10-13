@@ -8,3 +8,6 @@
 
 # Personal exports (Goodreads, Spotify)
 data/
+
+# Site build output
+site/dist/

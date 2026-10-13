@@ -20,6 +20,9 @@ Culture Digest (this vault)
 ├── emails/                     ← one saved markdown copy of each day's email
 ├── logs/
 │   └── run-log.md              ← one row per run: date, status, item count, notes
+├── site/
+│   ├── build.py                ← renders emails/ into a static site (site/dist/)
+│   └── style.css
 └── README.md                   ← you are here
 ```
 
@@ -42,6 +45,15 @@ You never edit the scheduled task directly. Just edit the two notes in `config/`
 - Want to fine tune reading recommendations? → `config/reading-taste.md`
 
 The next 4am run picks up your changes automatically.
+
+## The website
+
+Every push to `main` on GitHub builds the site from `emails/` and deploys it to GitHub Pages. Nothing in the weekly flow changes: the task writes markdown, the site renders it.
+
+- Preview locally: `pip install markdown pyyaml` then `python3 site/build.py --serve` and open http://localhost:8000
+- Change the look: edit `site/style.css`
+- Change what the pages contain: edit `site/build.py`
+- Workflow: `.github/workflows/pages.yml`
 
 ## Dependencies
 
