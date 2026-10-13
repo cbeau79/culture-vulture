@@ -159,6 +159,35 @@ main {
 .lead-standfirst a:hover { color: var(--accent); }
 .lead-standfirst em { font-style: normal; }
 
+.mosaic {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+  margin: 0 0 1.25rem;
+  background: var(--rule);
+  border: 3px solid var(--rule);
+}
+.mosaic img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: var(--paper);
+}
+
+.strip-thumbs {
+  display: flex;
+  gap: 3px;
+  margin: 0 0 0.75rem;
+}
+.strip-thumbs img {
+  display: block;
+  width: 3.25rem;
+  height: 3.25rem;
+  object-fit: cover;
+  flex: none;
+}
+
 /* Home: archive ----------------------------------------------------- */
 
 .archive { padding-top: 2.25rem; }
@@ -283,35 +312,57 @@ main {
   color: var(--sec, var(--ink));
 }
 
-.sec ul {
+.items {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.sec li {
+.item {
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  gap: 0 1.1rem;
   margin: 0 0 1.75rem;
   font-size: 1rem;
   line-height: 1.55;
 }
 
-.sec li > strong:first-child {
+.thumb {
   display: block;
+  width: 5rem;
+  height: 5rem;
+  background: var(--sec, var(--rule));
+  overflow: hidden;
+}
+.thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.thumb-empty { background: var(--rule); }
+.thumb-empty img { display: none; }
+
+.item-title {
   font-family: var(--serif);
   font-weight: 400;
   font-size: 1.375rem;
   line-height: 1.15;
   letter-spacing: -0.01em;
-  margin-bottom: 0.35rem;
+  margin: -0.15rem 0 0.3rem;
 }
-.sec li > strong:first-child em { font-style: italic; }
+.item-title em { font-style: italic; }
 
-.sec li a {
+.item-desc { margin: 0 0 0.35rem; }
+
+.item-links { margin: 0; }
+.item-links a {
+  display: block;
   color: var(--accent);
   text-decoration: none;
   overflow-wrap: anywhere;
 }
-.sec li a:hover { text-decoration: underline; }
+.item-links a:hover { text-decoration: underline; }
 
 .k {
   display: inline-block;
@@ -322,13 +373,13 @@ main {
 }
 
 /* The in-section playlist line the digest writes */
-.sec > p {
+.sec-notes p {
   color: var(--ink-2);
   font-size: 0.9375rem;
   margin: 0 0 1rem;
 }
-.sec > p a { color: var(--accent); text-decoration: none; }
-.sec > p a:hover { text-decoration: underline; }
+.sec-notes a { color: var(--accent); text-decoration: none; }
+.sec-notes a:hover { text-decoration: underline; }
 
 .edition-nav {
   display: flex;
@@ -361,14 +412,14 @@ main {
 @media (min-width: 48rem) {
   .row { grid-template-columns: 11rem 1fr; }
   .row-when { padding-top: 0.35rem; }
-  .row .picks { grid-column: 2; }
+  .row .row-side { grid-column: 2; }
 }
 
 @media (min-width: 64rem) {
   .lead { grid-template-columns: 3fr 2fr; align-items: start; }
   .lead-side { padding-top: 0.5rem; }
   .row { grid-template-columns: 11rem minmax(0, 1.1fr) minmax(0, 1fr); }
-  .row .picks { grid-column: 3; padding-top: 0.35rem; }
+  .row .row-side { grid-column: 3; padding-top: 0.35rem; }
   .edition { grid-template-columns: 14rem 1fr; }
   .rail {
     position: sticky;
@@ -388,6 +439,8 @@ main {
 }
 
 @media (max-width: 40rem) {
+  .item { grid-template-columns: 4rem 1fr; gap: 0 0.85rem; }
+  .thumb { width: 4rem; height: 4rem; }
   .masthead-sub { display: none; }
   .masthead-title { padding-bottom: 0.5rem; }
 }

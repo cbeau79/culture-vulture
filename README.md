@@ -22,6 +22,8 @@ Culture Digest (this vault)
 │   └── run-log.md              ← one row per run: date, status, item count, notes
 ├── site/
 │   ├── build.py                ← renders emails/ into a static site (site/dist/)
+│   ├── images.py               ← finds album art / article preview images for picks
+│   ├── images.json             ← cache of those lookups (committed; one line per link)
 │   └── style.css
 └── README.md                   ← you are here
 ```
@@ -54,6 +56,7 @@ Live at https://cbeau79.github.io/culture-vulture/. Every push to `main` on GitH
 - Preview locally: `pip install markdown pyyaml` then `python3 site/build.py --serve` and open http://localhost:8000
 - Change the look: edit `site/style.css`
 - Change what the pages contain: edit `site/build.py`
+- Images come from Spotify (album art) and each article's own preview image. Lookups are cached in `site/images.json`; run `python3 site/build.py --refresh-images` to retry picks that have none.
 - Workflow: `.github/workflows/pages.yml`
 
 ## Dependencies

@@ -20,6 +20,8 @@ from pathlib import Path
 import markdown
 import yaml
 
+from images import ImageCache
+
 ROOT = Path(__file__).resolve().parent.parent
 EMAILS = ROOT / "emails"
 SITE = ROOT / "site"
@@ -30,6 +32,9 @@ SITE_SUB = "A weekly read, watch and listen digest"
 FRONTMATTER = re.compile(r"\A---\s*\n(.*?)\n---\s*\n", re.S)
 EMOJI = re.compile(r"[\U0001F000-\U0001FAFF☀-➿️]\s*")
 ITEM_TITLE = re.compile(r"^\s*[-*]\s+\*\*(.+?)\*\*", re.M)
+ITEM_START = re.compile(r"^[-*]\s+\*\*")
+LINK = re.compile(r"\[([^\]]+)\]\((https?://[^)\s]+)\)")
+LINK_LINE = re.compile(r"^\s*(Listen|Read/Watch|Read|Watch)\s*:\s*(.*)$", re.I)
 
 # Section slug -> (short label, colour token). Matched on the heading text.
 SECTIONS = {
@@ -49,11 +54,29 @@ def section_slug(heading: str) -> str:
 
 
 @dataclass
+class Item:
+    title_html: str
+    title_text: str
+    desc_html: str
+    listen: tuple[str, str] | None   # (label, url)
+    read: tuple[str, str] | None
+    image: str | None = None
+
+    @property
+    def image_source(self) -> str | None:
+        if self.listen and "open.spotify.com/" in self.listen[1]:
+            return self.listen[1]
+        if self.read:
+            return self.read[1]
+        return None
+
+
+@dataclass
 class Section:
     slug: str
     heading: str
-    html: str
-    titles: list[str] = field(default_factory=list)
+    items: list[Item]
+    notes_html: str = ""   # paragraphs outside the list (the playlist line)
 
     @property
     def label(self) -> str:
@@ -61,7 +84,11 @@ class Section:
 
     @property
     def count(self) -> int:
-        return len(self.titles)
+        return len(self.items)
+
+    @property
+    def titles(self) -> list[str]:
+        return [i.title_text for i in self.items]
 
 
 @dataclass
@@ -88,6 +115,14 @@ class Edition:
     def count(self) -> int:
         return sum(s.count for s in self.sections)
 
+    @property
+    def items(self) -> list[Item]:
+        return [i for s in self.sections for i in s.items]
+
+    @property
+    def images(self) -> list[tuple[Item, str]]:
+        return [(i, i.image) for i in self.items if i.image]
+
 
 def inline_md(text: str) -> str:
     out = markdown.markdown(text).strip()
@@ -113,14 +148,62 @@ def parse_frontmatter(text: str) -> tuple[dict, str]:
     return meta, text[m.end():]
 
 
-def render_section_body(src: str) -> str:
-    out = markdown.markdown(src, extensions=["extra", "nl2br", "sane_lists"])
-    # "**Title** — description": the title is set on its own line, so drop the dash.
-    out = re.sub(r"</strong>\s*[—–-]\s*", "</strong> ", out)
-    # Label the link lines so they can be styled.
-    out = re.sub(r"(?<![\w>])Listen:\s*", '<span class="k">Listen</span> ', out)
-    out = re.sub(r"(?<![\w>])Read/Watch:\s*", '<span class="k">Read</span> ', out)
-    return out
+def parse_items(src: str) -> tuple[list[Item], str]:
+    """Split a section into picks plus any stray paragraphs (the playlist line)."""
+    items: list[Item] = []
+    notes: list[str] = []
+    block: list[str] = []
+
+    def flush() -> None:
+        if block:
+            items.append(parse_item(block))
+            block.clear()
+
+    for line in src.splitlines():
+        if ITEM_START.match(line):
+            flush()
+            block.append(line)
+        elif block and (line.startswith((" ", "\t")) or not line.strip()):
+            if line.strip():
+                block.append(line)
+        else:
+            flush()
+            if line.strip():
+                notes.append(line.strip())
+    flush()
+    notes_html = markdown.markdown("\n\n".join(notes)) if notes else ""
+    return items, notes_html
+
+
+def parse_item(lines: list[str]) -> Item:
+    first = ITEM_START.sub("", lines[0], count=1)
+    # Closing ** is the first pair followed by space, dash or end (titles may end in *** when italic).
+    m = re.match(r"(.+?)\*\*(?=\s|$|[—–-])\s*[—–-]?\s*(.*)$", first)
+    title, desc = (m.group(1), m.group(2)) if m else (first, "")
+    listen = read = None
+    for line in lines[1:]:
+        lm = LINK_LINE.match(line)
+        if not lm:
+            desc += " " + line.strip()
+            continue
+        kind, rest = lm.group(1).lower(), lm.group(2)
+        link = LINK.search(rest)
+        if not link:
+            continue
+        pair = (plain(link.group(1)), link.group(2))
+        if kind == "listen" and listen is None:
+            listen = pair
+        elif read is None:
+            read = pair
+    return Item(inline_md(title), plain(title), inline_md(desc.strip()), listen, read)
+
+
+def make_section(heading: str, lines: list[str]) -> Section:
+    src = "\n".join(lines)
+    src = re.sub(r"\n---\s*\nGenerated [^\n]*\s*\Z", "\n", src)
+    heading_clean = EMOJI.sub("", heading).strip()
+    items, notes_html = parse_items(src)
+    return Section(section_slug(heading_clean), heading_clean, items, notes_html)
 
 
 def load_edition(path: Path) -> Edition | None:
@@ -170,13 +253,6 @@ def load_edition(path: Path) -> Edition | None:
     return Edition(path.stem, d, inline_md(standfirst), sections, playlist)
 
 
-def make_section(heading: str, lines: list[str]) -> Section:
-    src = "\n".join(lines)
-    src = re.sub(r"\n---\s*\nGenerated [^\n]*\s*\Z", "\n", src)
-    heading_clean = EMOJI.sub("", heading).strip()
-    titles = [plain(t) for t in ITEM_TITLE.findall(src)]
-    return Section(section_slug(heading_clean), heading_clean, render_section_body(src), titles)
-
 
 # ---------------------------------------------------------------- templates
 
@@ -207,6 +283,43 @@ def page(title: str, body: str, depth: int, body_class: str = "") -> str:
 </body>
 </html>
 """
+
+
+def thumb(item: Item, size: int = 112) -> str:
+    if not item.image:
+        return '<span class="thumb thumb-empty" aria-hidden="true"></span>'
+    return (
+        f'<span class="thumb"><img src="{html.escape(item.image)}" alt="" width="{size}" height="{size}" '
+        f'loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add(\'thumb-empty\')"></span>'
+    )
+
+
+def render_item(item: Item) -> str:
+    links = []
+    if item.listen:
+        links.append(f'<a href="{html.escape(item.listen[1])}"><span class="k">Listen</span>{html.escape(item.listen[0])}</a>')
+    if item.read:
+        links.append(f'<a href="{html.escape(item.read[1])}"><span class="k">Read</span>{html.escape(item.read[0])}</a>')
+    return f"""<li class="item">
+  {thumb(item)}
+  <div class="item-body">
+    <h3 class="item-title">{item.title_html}</h3>
+    <p class="item-desc">{item.desc_html}</p>
+    <p class="item-links">{"".join(links)}</p>
+  </div>
+</li>"""
+
+
+def mosaic(e: Edition, limit: int, cls: str) -> str:
+    tiles = []
+    for item, img in e.images[:limit]:
+        tiles.append(
+            f'<img src="{html.escape(img)}" alt="" loading="lazy" referrerpolicy="no-referrer" '
+            f'title="{html.escape(item.title_text)}" onerror="this.remove()">'
+        )
+    if not tiles:
+        return ""
+    return f'<a class="{cls}" href="{e.url}" aria-label="{html.escape(e.pretty_date)}">{"".join(tiles)}</a>'
 
 
 def section_strip(e: Edition, link_prefix: str = "") -> str:
@@ -242,7 +355,7 @@ def render_index(editions: list[Edition]) -> str:
     {section_strip(latest, latest.url)}
   </div>
   <div class="lead-side">
-    <p class="lead-side-heading">This week's picks</p>
+    {mosaic(latest, 12, "mosaic")}
     {picks_block(latest, "picks")}
     <p class="lead-side-link"><a href="{latest.url}">Read the edition</a></p>
   </div>
@@ -253,7 +366,10 @@ def render_index(editions: list[Edition]) -> str:
         rows.append(f"""<li class="row">
   <div class="row-when"><a href="{e.url}"><time datetime="{e.date.isoformat()}">{e.pretty_date}</time></a></div>
   <a class="row-standfirst" href="{e.url}">{e.standfirst}</a>
-  {picks_block(e, "picks")}
+  <div class="row-side">
+    {mosaic(e, 6, "strip-thumbs")}
+    {picks_block(e, "picks")}
+  </div>
 </li>""")
 
     archive = f"""<section class="archive">
@@ -273,7 +389,9 @@ def render_edition(e: Edition, older: Edition | None, newer: Edition | None) -> 
     )
     sections = "\n".join(
         f'<section class="sec" id="{s.slug}" data-section="{s.slug}">'
-        f'<h2 class="sec-heading">{html.escape(s.heading)}</h2>{s.html}</section>'
+        f'<h2 class="sec-heading">{html.escape(s.heading)}</h2>'
+        f'<ul class="items">{"".join(render_item(i) for i in s.items)}</ul>'
+        f'<div class="sec-notes">{s.notes_html}</div></section>'
         for s in e.sections
     )
     nav = []
@@ -300,9 +418,19 @@ def render_edition(e: Edition, older: Edition | None, newer: Edition | None) -> 
 
 # ---------------------------------------------------------------- build
 
-def build() -> int:
+def build(fetch_images: bool = True, refresh_images: bool = False) -> int:
     editions = [ed for ed in (load_edition(p) for p in sorted(EMAILS.glob("*.md"))) if ed]
     editions.sort(key=lambda e: (e.date, e.slug), reverse=True)
+
+    cache = ImageCache(allow_fetch=fetch_images, refresh=refresh_images)
+    for e in editions:
+        for item in e.items:
+            src = item.image_source
+            if src:
+                item.image = cache.lookup(src)
+    cache.save()
+    if cache.fetched:
+        print(f"Looked up {cache.fetched} new image(s)")
 
     if DIST.exists():
         shutil.rmtree(DIST)
@@ -325,8 +453,10 @@ def build() -> int:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--serve", action="store_true", help="serve site/dist on port 8000 after building")
+    ap.add_argument("--no-fetch", action="store_true", help="use only cached images, no network")
+    ap.add_argument("--refresh-images", action="store_true", help="retry picks that have no cached image")
     args = ap.parse_args()
-    build()
+    build(fetch_images=not args.no_fetch, refresh_images=args.refresh_images)
     if args.serve:
         import functools
         import http.server
