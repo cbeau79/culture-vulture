@@ -72,7 +72,7 @@ Use these for discovery and for the read/watch. The listings sources are for **d
 
 ## Weekly Spotify playlist
 
-Each run creates a private Spotify playlist of the week's Music picks blended with the taste profile. The digest must link to it: one line at the end of the Music section, with the playlist's `open.spotify.com/playlist/...` URL, as laid out in `config/email-template.md`. Record the URL in the email's frontmatter as `playlist_url`. If the playlist could not be created, omit the line and say so in the run log.
+Each run creates a private Spotify playlist via the Spotify `generate_playlist` tool. The prompt names only this week's Music picks (one track each, with a specific track where known), then asks for about 20 minus N lesser-known tracks by other artists that sound similar, described in a few words each, and closes with: one track per artist, no David Bowie, favour deep cuts over hits. Do not name artists from `music-taste.md` in the prompt: Spotify already blends in Chris's listening history, and naming them crowds out the week's picks. The digest must link to the playlist: one line at the end of the Music section, with the playlist's `open.spotify.com/playlist/...` URL, as laid out in `config/email-template.md`. Record the URL in the email's frontmatter as `playlist_url`. If the playlist could not be created, omit the line and say so in the run log.
 
 ## Tone
 
