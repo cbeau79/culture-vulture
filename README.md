@@ -33,9 +33,9 @@ Culture Digest (this vault)
 1. **Read config** — the task reads `config/trawl-instructions.md` and `config/email-template.md`.
 2. **Trawl** — it searches the sources and topics named in the instructions.
 3. **Build** — it renders the digest using the email template.
-4. **Version** — it saves the rendered email to `emails/YYYY-MM-DD-culture-vulture.md` - version existing files with v1, v2, v3 etc if they are discovered when writing to this location.
+4. **Version** — it saves the rendered email to `emails/YYYY-MM-DD-culture-digest.md` - version existing files with v1, v2, v3 etc if they are discovered when writing to this location.
 5. **Log** — it appends a row to `logs/run-log.md`.
-6. **Send** — it emails the digest via the connected Gmail tool.
+6. **Draft** — it creates a Gmail draft of the digest via the connected Gmail tool. Nothing sends automatically; `scripts/send-digest.py` is a separate manual send path.
 7. **Publish** — it commits the vault and pushes to GitHub, which rebuilds the website.
 
 ## To change how it behaves
@@ -61,5 +61,5 @@ Live at https://cbeau79.github.io/culture-vulture/. Every push to `main` on GitH
 
 ## Dependencies
 
-- **Gmail connector** must be authorized for the email to actually send. If it isn't connected, the task still saves the versioned email into `emails/` and notes the skipped send in the log — nothing breaks.
+- **Gmail connector** must be authorized for the Gmail draft to be created. If it isn't connected, the task still saves the versioned email into `emails/` and notes the skipped draft in the log — nothing breaks.
 - Scheduled tasks run while the Claude app is open. If the app is closed at 4am, the task runs on next launch.
