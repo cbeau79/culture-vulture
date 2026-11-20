@@ -8,6 +8,7 @@ Each digest becomes one page; the index lists them newest first.
 Requires: markdown, pyyaml  (pip install markdown pyyaml)
 """
 
+# Test comment: added to check that project status updates work (issue #5).
 import argparse
 import html
 import re
