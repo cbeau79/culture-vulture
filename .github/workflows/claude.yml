@@ -4,6 +4,7 @@ name: Claude
 # - add the "claude" label to an issue, or
 # - mention @claude in an issue, issue comment or PR review comment.
 # Only people with write access to the repo can trigger it.
+# Claude moves the issue through the project board: In progress, then In review.
 
 on:
   issues:
@@ -17,6 +18,8 @@ on:
 
 jobs:
   claude:
+    # Only the "claude" label starts a run. Other label changes are ignored.
+    if: github.event_name != 'issues' || github.event.label.name == 'claude'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -36,3 +39,9 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           label_trigger: "claude"
+          # Lets Claude update the project board status, as described in CLAUDE.md.
+          claude_args: |
+            --allowedTools "Bash(scripts/set-project-status.sh:*)"
+        env:
+          # Classic personal access token with the "project" scope.
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
