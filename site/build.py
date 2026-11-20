@@ -390,6 +390,15 @@ def render_index(editions: list[Edition]) -> str:
     return page(SITE_TITLE, lead + "\n" + archive, depth=0, body_class="home")
 
 
+def external_links_new_tab(markup: str) -> str:
+    """Make absolute http(s) links open in a new tab."""
+    return re.sub(
+        r'<a (?=[^>]*\bhref="https?://)',
+        '<a target="_blank" rel="noopener noreferrer" ',
+        markup,
+    )
+
+
 def render_edition(e: Edition, older: Edition | None, newer: Edition | None) -> str:
     playlist = (
         f'<p class="playlist"><a href="{html.escape(e.playlist_url)}">Listen to the week\'s playlist</a></p>'
@@ -421,6 +430,7 @@ def render_edition(e: Edition, older: Edition | None, newer: Edition | None) -> 
     <nav class="edition-nav" aria-label="Other editions">{"".join(nav)}</nav>
   </div>
 </article>"""
+    body = external_links_new_tab(body)
     return page(f"{e.pretty_date}: {SITE_TITLE}", body, depth=1, body_class="single")
 
 
