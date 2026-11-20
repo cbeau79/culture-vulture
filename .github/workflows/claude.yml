@@ -4,6 +4,7 @@ name: Claude
 # - add the "claude" label to an issue, or
 # - mention @claude in an issue, issue comment or PR review comment.
 # Only people with write access to the repo can trigger it.
+# Claude tracks progress with status labels: in progress, needs info, ready for review.
 
 on:
   issues:
@@ -17,6 +18,8 @@ on:
 
 jobs:
   claude:
+    # Claude changes status labels as it works. Only the "claude" label starts a run.
+    if: github.event_name != 'issues' || github.event.label.name == 'claude'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -36,3 +39,6 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           label_trigger: "claude"
+          # Lets Claude set the status labels described in CLAUDE.md.
+          claude_args: |
+            --allowedTools "Bash(gh issue edit:*)"
